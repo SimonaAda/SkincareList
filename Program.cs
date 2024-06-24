@@ -17,8 +17,11 @@ public class Program
             Directory.CreateDirectory(defaultFolderPath);
         }
 
-        string filePath = Console.ReadLine();
-        Xml.ImportFromXml(filePath);
+        XmlSerializer serializer = new XmlSerializer(typeof(List<Skincare>));
+        using TextWriter writer = new StreamWriter(defaultFilePath);
+        serializer.Serialize(writer, produkty);
+
+        
 
         while (true)
         {
@@ -62,7 +65,7 @@ public class Program
 
     static void PridejProdukt()
     {
-        Skincare produkt = new Skincare;
+        Skincare produkt = new Skincare();// preco to nejde ?????
 
         Console.WriteLine("Zadejte značku produktu: ");
         produkt.Znacka = Console.ReadLine();
@@ -79,11 +82,6 @@ public class Program
 
     static void TridPodleUcinku()
     {
-
-    }
-
-    static void SkontrolujExpiraci()
-    {
         Console.WriteLine("Zadejte požadovaný efekt: ");
         string ucinek = Console.ReadLine();
         var vyfiltrovaneProdukty = produkty.Where(p => p.Ucinek.Equals(ucinek)).ToList();
@@ -97,6 +95,14 @@ public class Program
         else
         {
             Console.WriteLine("Filtru neodpovídá žádný produkt.");
+        }
+    }
+
+    static void SkontrolujExpiraci()
+    {
+        foreach(var produkt in produkty)
+        {
+            DateTime DatumExpirace = produkt.DatumOtevreni.AddDays(365);
         }
     }
 
@@ -118,9 +124,9 @@ public class Program
 
     static void UlozAUkonci()
     {
-        string cestakSouboru = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments))
+    
         XmlSerializer serializer = new XmlSerializer(typeof(List<Skincare>));
-        using TextWriter writer = new StreamWriter(cestakSouboru);
+        using TextWriter writer = new StreamWriter(defaultFilePath);
         serializer.Serialize(writer, produkty);
         return;
     }
