@@ -8,24 +8,18 @@ namespace pF
 {
     public class Skincare
     {
-        public string Znacka { get; set; }
         public string Nazev { get; set; }
+   
         public string Ucinek { get; set; }  
 
         public DateTime DatumOtevreni { get; set; }
 
+        public DateTime DatumExpirace;
 
-        public Skincare (string znacka, string nazev, string ucinek, DateTime datumOtevreni)
-        {
-            Znacka = znacka;
-            Nazev = nazev;
-            Ucinek = ucinek;
-            DatumOtevreni = datumOtevreni;
-        }
 
         public override string ToString()
         {
-            return $"Značka:{Znacka}, název:{Nazev}, účinek: {Ucinek}, datum otevření {DatumOtevreni}";
+            return $"Název:{Nazev}, účinek: {Ucinek}, datum otevření: {DatumOtevreni}";
         }
     }
 }

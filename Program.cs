@@ -1,5 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using pF;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
 
 public class Program
@@ -8,31 +10,27 @@ public class Program
     static string defaultFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Produkty");
     static string defaultFilePath = Path.Combine(defaultFolderPath, "produkty.xml");
 
-
+    
     static void Main(string[] args)
     {
+        
 
         if (!Directory.Exists(defaultFolderPath))
         {
             Directory.CreateDirectory(defaultFolderPath);
         }
 
-        XmlSerializer serializer = new XmlSerializer(typeof(List<Skincare>));
-        using TextWriter writer = new StreamWriter(defaultFilePath);
-        serializer.Serialize(writer, produkty);
-
-        
+     //   Xml.ImportFromXml(defaultFilePath);
 
         while (true)
         {
-            Console.WriteLine("1. Přidej produkt.");
-            Console.WriteLine("2. Třiď podle účinku.");
-            Console.WriteLine("3. Kontrola expirace.");
-            Console.WriteLine("4. Seznam produktů.");
-            Console.WriteLine("5. Konec.");
-            Console.Write("Zvolte možnost.");
+            Console.WriteLine("Zvolte možnost:");
+            Console.WriteLine("1 - Přidej produkt.");
+            Console.WriteLine("2 - Třiď produkty podle účinku.");
+            Console.WriteLine("3 - Kontrola expirace.");
+            Console.WriteLine("4 - Seznam produktů.");
+            Console.WriteLine("5 - Konec.");
 
-            Console.WriteLine();
             Console.WriteLine();
 
             var moznost = Console.ReadLine();
@@ -65,73 +63,89 @@ public class Program
 
     static void PridejProdukt()
     {
-        Skincare produkt = new Skincare();// preco to nejde ?????
-
-        Console.WriteLine("Zadejte značku produktu: ");
-        produkt.Znacka = Console.ReadLine();
         Console.WriteLine("Zadejte název produktu: ");
-        produkt.Nazev = Console.ReadLine();
+        var nazev = Console.ReadLine();
         Console.WriteLine("Účinek: ");
-        produkt.Ucinek = Console.ReadLine();
-        Console.WriteLine("Datum otevření: ");
-        DateTime DatumOtevreni = DateTime.Parse(Console.ReadLine());
+        var ucinek = Console.ReadLine();
+        Console.WriteLine("Datum otevření (rok/měsíc/den): ");
+        DateTime datumOtevreni = DateTime.Parse(Console.ReadLine());
 
+        DateTime datumExpirace = datumOtevreni.AddMonths(12);
+
+        Skincare produkt = new Skincare();
         produkty.Add(produkt);
-        Console.WriteLine("Produkt přidán.");
+        
     }
+
 
     static void TridPodleUcinku()
     {
-        Console.WriteLine("Zadejte požadovaný efekt: ");
+        Console.WriteLine("Zadejte účinek: ");
         string ucinek = Console.ReadLine();
         var vyfiltrovaneProdukty = produkty.Where(p => p.Ucinek.Equals(ucinek)).ToList();
-        if (vyfiltrovaneProdukty.Count > 0)
+
+        if(vyfiltrovaneProdukty.Count > 0)
         {
             foreach (var produkt in vyfiltrovaneProdukty)
             {
-                Console.WriteLine($"Filtru odpovídá {produkt}.");
+                Console.WriteLine($"{ucinek} účinek: {produkt}.");
             }
         }
         else
         {
-            Console.WriteLine("Filtru neodpovídá žádný produkt.");
+            Console.WriteLine($"Filtru {ucinek} účinek neodpovídá žádný produkt.");
         }
     }
 
     static void SkontrolujExpiraci()
     {
-        foreach(var produkt in produkty)
+        DateTime dnes = DateTime.Today;
+        DateTime dnyDoExpirace = DateTime.Today.AddDays(14);
+
+        var bliziciSeExpirace = produkty.Where(p => p.DatumExpirace <= dnyDoExpirace && p.DatumExpirace >= dnes).ToList();
+
+        if (bliziciSeExpirace.Count > 0)
         {
-            DateTime DatumExpirace = produkt.DatumOtevreni.AddDays(365);
+            Console.WriteLine($"Produkty s blížíce se expirací: ");
+
+            foreach (var produkt in bliziciSeExpirace)
+            {
+                Console.WriteLine(produkt);
+            }
         }
+
+        else
+        {
+            Console.WriteLine("Seznam neobsahuje žádný produkt s blížící se expirací");
+        }
+ 
     }
 
-    static void ZobrazProdukty()
-    {
-        foreach (var produkt in produkty)
+        static void ZobrazProdukty()
         {
-            if (produkty.Count > 0)
+            foreach (var produkt in produkty)
             {
-                Console.WriteLine($"{produkt.Znacka},{produkt.Ucinek},{produkt.DatumOtevreni}");
-            }
-            else
-            {
-                Console.WriteLine("Produkt nenalezen.");
-            }
+                if (produkty.Count > 0)
+                {
+                    Console.WriteLine($"nazev: {produkt.Nazev}, účinek: {produkt.Ucinek},datum otevření: {produkt.DatumOtevreni}");
+                }
+                else
+                {
+                    Console.WriteLine("Produkt nenalezen.");
+                }
 
+            }
         }
-    }
 
-    static void UlozAUkonci()
-    {
+        static void UlozAUkonci()
+        {
+
+            Xml.ExportToXml(produkty, defaultFilePath);
+            return;
+        }
+
+
+
+
     
-        XmlSerializer serializer = new XmlSerializer(typeof(List<Skincare>));
-        using TextWriter writer = new StreamWriter(defaultFilePath);
-        serializer.Serialize(writer, produkty);
-        return;
-    }
-
-
-
-
 }
