@@ -14,8 +14,6 @@ namespace pF
 
         public DateTime DatumOtevreni { get; set; }
 
-        public DateTime DatumExpirace;
-
 
         public override string ToString()
         {

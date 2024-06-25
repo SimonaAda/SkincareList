@@ -13,14 +13,13 @@ public class Program
     
     static void Main(string[] args)
     {
-        
+        string filePath = defaultFilePath;
+        produkty.AddRange(Xml.ImportFromXml(filePath));
 
         if (!Directory.Exists(defaultFolderPath))
         {
             Directory.CreateDirectory(defaultFolderPath);
         }
-
-     //   Xml.ImportFromXml(defaultFilePath);
 
         while (true)
         {
@@ -63,20 +62,20 @@ public class Program
 
     static void PridejProdukt()
     {
-        Console.WriteLine("Zadejte název produktu: ");
-        var nazev = Console.ReadLine();
-        Console.WriteLine("Účinek: ");
-        var ucinek = Console.ReadLine();
-        Console.WriteLine("Datum otevření (rok/měsíc/den): ");
-        DateTime datumOtevreni = DateTime.Parse(Console.ReadLine());
-
-        DateTime datumExpirace = datumOtevreni.AddMonths(12);
-
         Skincare produkt = new Skincare();
-        produkty.Add(produkt);
-        
-    }
 
+        Console.WriteLine("Zadejte název produktu: ");
+        produkt.Nazev = Console.ReadLine();
+        Console.WriteLine("Účinek: ");
+        produkt.Ucinek = Console.ReadLine();
+        Console.WriteLine("Datum otevření (rok/měsíc/den): ");
+        DateTime DatumOtevreni = DateTime.Parse(Console.ReadLine());
+        
+        produkty.Add(produkt);
+
+        string filePath = defaultFilePath;
+        Xml.ExportToXml(produkty, filePath);
+    }
 
     static void TridPodleUcinku()
     {
@@ -99,50 +98,43 @@ public class Program
 
     static void SkontrolujExpiraci()
     {
-        DateTime dnes = DateTime.Today;
-        DateTime dnyDoExpirace = DateTime.Today.AddDays(14);
-
-        var bliziciSeExpirace = produkty.Where(p => p.DatumExpirace <= dnyDoExpirace && p.DatumExpirace >= dnes).ToList();
-
-        if (bliziciSeExpirace.Count > 0)
+        foreach (var produkt in produkty)
         {
-            Console.WriteLine($"Produkty s blížíce se expirací: ");
-
-            foreach (var produkt in bliziciSeExpirace)
+            DateTime datumExpirace = produkt.DatumOtevreni.AddDays(365);
+            if (DateTime.Now > datumExpirace)
             {
-                Console.WriteLine(produkt);
+                Console.WriteLine($"Blížící se expirace: {produkt}");
             }
-        }
+            else
+            {
+                Console.WriteLine();
+            }
 
-        else
-        {
-            Console.WriteLine("Seznam neobsahuje žádný produkt s blížící se expirací");
-        }
- 
+        } 
     }
 
-        static void ZobrazProdukty()
+    static void ZobrazProdukty()
+    {
+        foreach (var produkt in produkty)
         {
-            foreach (var produkt in produkty)
-            {
-                if (produkty.Count > 0)
-                {
-                    Console.WriteLine($"nazev: {produkt.Nazev}, účinek: {produkt.Ucinek},datum otevření: {produkt.DatumOtevreni}");
-                }
-                else
-                {
-                    Console.WriteLine("Produkt nenalezen.");
-                }
+           if (produkty.Count > 0)
+           {
+                Console.WriteLine($"nazev: {produkt.Nazev}, účinek: {produkt.Ucinek},datum otevření: {produkt.DatumOtevreni}.");
+           }
+           else
+           {
+                Console.WriteLine("Produkt nenalezen.");
+           }
 
-            }
         }
+    }
 
-        static void UlozAUkonci()
-        {
-
-            Xml.ExportToXml(produkty, defaultFilePath);
-            return;
-        }
+    static void UlozAUkonci()
+    {
+        string filePath = defaultFilePath;
+        Xml.ExportToXml(produkty, filePath);
+        
+    }
 
 
 
