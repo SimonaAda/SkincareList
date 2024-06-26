@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using pF;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
@@ -8,7 +9,7 @@ public class Program
 {
     static List<Skincare> produkty = new List<Skincare>();
     static string defaultFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Produkty");
-    static string defaultFilePath = Path.Combine(defaultFolderPath, "produkty.xml");
+    static string defaultFilePath = Path.Combine(defaultFolderPath,"produkty.xml");
 
     
     static void Main(string[] args)
@@ -69,7 +70,7 @@ public class Program
         Console.WriteLine("Účinek: ");
         produkt.Ucinek = Console.ReadLine();
         Console.WriteLine("Datum otevření (rok/měsíc/den): ");
-        DateTime DatumOtevreni = DateTime.Parse(Console.ReadLine());
+        produkt.DatumOtevreni = DateTime.Parse(Console.ReadLine());
         
         produkty.Add(produkt);
 
@@ -98,19 +99,21 @@ public class Program
 
     static void SkontrolujExpiraci()
     {
-        foreach (var produkt in produkty)
+        DateTime dnes = DateTime.Today;
+        
+        foreach(var produkt in produkty)
         {
-            DateTime datumExpirace = produkt.DatumOtevreni.AddDays(365);
-            if (DateTime.Now > datumExpirace)
-            {
-                Console.WriteLine($"Blížící se expirace: {produkt}");
+            if(produkt.DatumOtevreni.AddMonths(12) < dnes)
+            { 
+                Console.WriteLine($"Expirace: {produkt}");
             }
             else
             {
-                Console.WriteLine();
+                Console.WriteLine("Nejsou žádné produkty s blížící se expirací.");
             }
-
-        } 
+            
+        }
+        
     }
 
     static void ZobrazProdukty()

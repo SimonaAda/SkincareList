@@ -14,9 +14,9 @@ namespace pF
 
         public DateTime DatumOtevreni { get; set; }
 
-
         public override string ToString()
         {
+            DateTime DatumExpirace = DatumOtevreni.AddMonths(12);
             return $"Název:{Nazev}, účinek: {Ucinek}, datum otevření: {DatumOtevreni}";
         }
     }
