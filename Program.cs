@@ -29,7 +29,8 @@ public class Program
             Console.WriteLine("2 - Třiď produkty podle účinku.");
             Console.WriteLine("3 - Kontrola expirace.");
             Console.WriteLine("4 - Seznam produktů.");
-            Console.WriteLine("5 - Konec.");
+            Console.WriteLine("5 - Vymaž produkt.");
+            Console.WriteLine("6 - Konec.");
 
             Console.WriteLine();
 
@@ -50,14 +51,15 @@ public class Program
                     ZobrazProdukty();
                     break;
                 case "5":
+                    VymazProdukty();
+                    break;
+                case "6":
                     UlozAUkonci();
                     return;
                 default:
                     Console.WriteLine("Nesprávny vstup. Skúste to znovu.");
                     break;
             }
-
-
         }
     }
 
@@ -88,30 +90,50 @@ public class Program
         {
             foreach (var produkt in vyfiltrovaneProdukty)
             {
-                Console.WriteLine($"{ucinek} účinek: {produkt}.");
+                Console.WriteLine($"{produkt.Ucinek} účinek: {produkt.Nazev}.");
             }
         }
         else
         {
-            Console.WriteLine($"Filtru {ucinek} účinek neodpovídá žádný produkt.");
+            Console.WriteLine($"Filtru {produkt.Ucinek} účinek neodpovídá žádný produkt.");
         }
     }
 
     static void SkontrolujExpiraci()
     {
         DateTime dnes = DateTime.Today;
-        
-        foreach(var produkt in produkty)
+        List<Skincare> produktyKeSmazani = new List<Skincare>();
+        bool nalezenExpirovany = false;
+
+        foreach (var produkt in produkty)
         {
-            if(produkt.DatumOtevreni.AddMonths(12) < dnes)
-            { 
-                Console.WriteLine($"Expirace: {produkt}");
-            }
-            else
+            if (produkt.DatumOtevreni.AddMonths(12) < dnes)
             {
-                Console.WriteLine("Nejsou žádné produkty s blížící se expirací.");
+                Console.WriteLine($"Produkt '{produkt.Nazev}' je expirovaný!");
+                nalezenExpirovany = true;
+
+                Console.Write("Přejete si tento produkt vymazat? (A/N): ");
+                var odpoved = Console.ReadLine().Trim().ToUpper();
+
+                if (odpoved == "A")
+                {
+                    produktyKeSmazani.Add(produkt);
+                }
             }
-            
+        }
+
+        if (produktyKeSmazani.Count > 0)
+        {
+            foreach (var produkt in produktyKeSmazani)
+            {
+                produkty.Remove(produkt);
+            }
+
+            UlozAUkonci(); 
+        }
+        else  
+        {
+            Console.WriteLine("Nejsou nalezeny žádné produkty s blížící se nebo prošlou expirací.");
         }
         
     }
@@ -122,13 +144,32 @@ public class Program
         {
            if (produkty.Count > 0)
            {
-                Console.WriteLine($"nazev: {produkt.Nazev}, účinek: {produkt.Ucinek},datum otevření: {produkt.DatumOtevreni}.");
+                Console.WriteLine($"název: {produkt.Nazev}, účinek: {produkt.Ucinek},datum otevření: {produkt.DatumOtevreni}.");
            }
            else
            {
                 Console.WriteLine("Produkt nenalezen.");
            }
+        }
+    }
 
+    static void VymazProdukty()
+    {
+        Console.WriteLine("Zadejte název produktu.");
+        string nazevKeSmazani = Console.ReadLine();
+
+        Skincare produktKeSmazani = produkty.FirstOrDefault(p => p.Nazev.Equals(nazevKeSmazani, StringComparison.OrdinalIgnoreCase));
+
+        if (produktKeSmazani != null)
+        {
+            produkty.Remove(produktKeSmazani);
+            Console.WriteLine($"Produkt '{nazevKeSmazani}' byl úspěšně vymazán.");
+
+            UlozAUkonci();
+        }
+        else
+        {
+            Console.WriteLine($"Produkt s názvem '{nazevKeSmazani}' nebyl nalezen.");
         }
     }
 
